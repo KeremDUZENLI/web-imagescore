@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>web-imagescore</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%2210 0 100 100%22><text y=%22.90em%22 font-size=%2290%22>🅾</text></svg>"
+    />
+    <link rel="stylesheet" href="css/all.css" />
+    <link rel="stylesheet" href="css/index.css" />
+  </head>
+
+  <body>
+    <main id="app_imagescore">
+      <div id="container_dropzone" class="dropzone">
+        <h2>Upload Images</h2>
+        <p>Drag and drop .jpg or .png files here, or click to browse.</p>
+        <input
+          type="file"
+          id="input_file"
+          multiple
+          accept="image/jpeg, image/png"
+        />
+      </div>
+
+      <div id="container_status">System Offline. Awaiting initialization.</div>
+
+      <!-- MOVED: Support container is now a child of the main wrapper -->
+      <div id="container_support">
+        <h3>SUPPORT THE PROJECT</h3>
+        <p>
+          If you find this resource valuable and would like to help support my
+          education and doctoral research, please consider treating me to a cup
+          of coffee (or tea) via Revolut.
+        </p>
+        <div style="text-align: center">
+          <a href="https://revolut.me/krmdznl" target="_blank">
+            <img
+              src="https://img.shields.io/badge/Support%20My%20Projects-Donate%20via%20Revolut-orange?style=for-the-badge"
+              alt="Support me via Revolut"
+            />
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2026 Kerem Düzenli</p>
+    </footer>
+
+    <script type="module" src="js/index.js"></script>
+  </body>
+</html>
