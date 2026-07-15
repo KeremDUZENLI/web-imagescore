@@ -3,11 +3,14 @@ import {
   env,
 } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.0";
 
-// Disable local paths to ensure compatibility when deployed to GitHub Pages
 env.allowLocalModels = false;
-
-// Global variable to store the initialized model
 let classifier = null;
+const targetVectors = [
+  "a calculated explorer in a professional environment",
+  "architectural geometry and spatial depth",
+  "high quality documentation of global mobility",
+  "a standard, low quality, blurry, or irrelevant photo",
+];
 
 async function initNeuralNetwork() {
   const statusElement = document.getElementById("container_status");
@@ -58,16 +61,92 @@ function initDropzone() {
 
     if (event.dataTransfer.files.length > 0) {
       fileInput.files = event.dataTransfer.files;
-      console.log(`[System Log] ${fileInput.files.length} images queued.`);
+      renderImagePreviews(fileInput.files);
     }
   });
 
   fileInput.addEventListener("change", () => {
-    console.log(`[System Log] ${fileInput.files.length} images queued.`);
+    if (fileInput.files.length > 0) {
+      renderImagePreviews(fileInput.files);
+    }
   });
 }
 
-// Bootstrap the application by initializing both the UI and the Network
+// UPDATED: Synchronizes computations, sorts the dataset, and renders the ranked UI
+async function renderImagePreviews(files) {
+  const containerResults = document.getElementById("container_results");
+  const statusElement = document.getElementById("container_status");
+
+  containerResults.innerHTML = ""; // Clear previous results
+
+  // Update status to indicate processing has begun
+  statusElement.textContent = `Status: Computing tensors for ${files.length} assets...`;
+  statusElement.style.color = "var(--color_link)";
+
+  // 1. Create a computation array (Promise) for each file
+  const computationPromises = Array.from(files).map((file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+
+      reader.onload = async (event) => {
+        const imageDataUrl = event.target.result;
+
+        try {
+          // Execute neural network
+          const output = await classifier(imageDataUrl, targetVectors);
+          let structuralScore = 0;
+
+          output.forEach((result) => {
+            if (result.label !== targetVectors[3]) {
+              // Ignore noise sink
+              structuralScore += result.score;
+            }
+          });
+
+          // Resolve the Promise with a clean data object
+          resolve({
+            name: file.name,
+            url: imageDataUrl,
+            score: structuralScore,
+          });
+        } catch (error) {
+          console.error(`Failure processing ${file.name}:`, error);
+          resolve({ name: file.name, url: imageDataUrl, score: 0 }); // Fallback
+        }
+      };
+
+      reader.readAsDataURL(file);
+    });
+  });
+
+  // 2. Await the completion of ALL image calculations
+  const scoredAssets = await Promise.all(computationPromises);
+
+  // 3. Sort the array in descending order (highest score first)
+  scoredAssets.sort((a, b) => b.score - a.score);
+
+  // 4. Render the sorted Presentation Layer
+  scoredAssets.forEach((asset, index) => {
+    const row = document.createElement("div");
+    row.className = "result_row";
+
+    row.innerHTML = `
+      <img src="${asset.url}" alt="${asset.name}">
+      <div class="result_info">
+        <span class="result_name">#${index + 1} | ${asset.name}</span>
+        <span class="result_score">Structural Match: ${(asset.score * 100).toFixed(2)}%</span>
+      </div>
+    `;
+
+    containerResults.appendChild(row);
+  });
+
+  // Revert status to default
+  statusElement.textContent = "Status: Online. Processing complete.";
+  statusElement.style.color = "var(--color_text)";
+}
+
+// Bootstrap the application
 window.addEventListener("DOMContentLoaded", () => {
   initDropzone();
   initNeuralNetwork();
