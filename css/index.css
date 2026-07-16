@@ -8,6 +8,8 @@
   flex-direction: column;
   margin: 20px auto 0px auto;
   padding: 16px;
+  width: 100%;
+  max-width: 1200px;
 }
 
 .dropzone {
@@ -110,7 +112,9 @@
 
 .grid_layout {
   display: grid;
-  grid-template-columns: 30px minmax(0, var(--thumbnail_size)) 1fr 60px 80px;
+  grid-template-columns:
+    30px minmax(0, var(--thumbnail_size)) minmax(120px, 1fr)
+    60px 80px;
   gap: 16px;
   align-items: center;
   padding: 8px 16px;
@@ -161,21 +165,18 @@
   gap: 6px;
   cursor: pointer;
 }
-
+.col_filename {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 .col_rank {
   grid-column: 4;
 }
 .col_score {
   grid-column: 5;
-}
-
-#app_imagescore.compact_mode .grid_layout {
-  grid-template-columns: 30px minmax(0, var(--thumbnail_size)) 110px 60px 80px;
-}
-#app_imagescore.compact_mode .col_filename {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 #container_support {
@@ -201,6 +202,17 @@
   max-width: 100%;
 }
 
+#app_imagescore.compact_mode .grid_layout {
+  grid-template-columns: 30px minmax(0, var(--thumbnail_size)) 75px 60px 80px;
+}
+#app_imagescore.compact_mode .col_filename,
+#app_imagescore.compact_mode .toggle_text {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 @media (max-width: 640px) {
   #app_imagescore {
     margin: 12px auto;
@@ -213,11 +225,13 @@
 
   .grid_layout {
     gap: 8px;
-    grid-template-columns: 20px minmax(0, var(--thumbnail_size)) 1fr 35px 45px;
+    grid-template-columns:
+      20px minmax(0, var(--thumbnail_size)) minmax(80px, 1fr)
+      35px 45px;
     padding: 8px;
   }
 
   #app_imagescore.compact_mode .grid_layout {
-    grid-template-columns: 20px minmax(0, var(--thumbnail_size)) 95px 35px 45px;
+    grid-template-columns: 20px minmax(0, var(--thumbnail_size)) 65px 35px 45px;
   }
 }
