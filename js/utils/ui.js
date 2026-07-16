@@ -162,3 +162,35 @@ export function initControls() {
     btnDownload.style.pointerEvents = "auto";
   });
 }
+
+export function bindPersonaSelector(processCallback) {
+  const selectPersona = document.getElementById("select_persona");
+
+  Array.from(selectPersona.options).forEach((option) => {
+    const matrix = aiState.personas[option.value];
+    if (matrix) {
+      option.title =
+        "TARGET VECTORS:\n• " +
+        matrix[0] +
+        "\n• " +
+        matrix[1] +
+        "\n• " +
+        matrix[2] +
+        "\n\nNEGATIVE VECTORS:\n• " +
+        matrix[3];
+    }
+  });
+
+  selectPersona.title =
+    selectPersona.options[selectPersona.selectedIndex].title;
+
+  selectPersona.addEventListener("change", (event) => {
+    aiState.activePersona = event.target.value;
+    selectPersona.title =
+      selectPersona.options[selectPersona.selectedIndex].title;
+
+    if (aiState.scoredAssets.length > 0) {
+      processCallback(aiState.scoredAssets);
+    }
+  });
+}
