@@ -27,6 +27,50 @@
 
       <div id="container_status">System Offline. Awaiting initialization.</div>
 
+      <div id="container_controls">
+        <div id="container_slider">
+          <input
+            type="range"
+            id="slider_thumbnail"
+            min="40"
+            max="500"
+            value="60"
+          />
+        </div>
+
+        <button id="btn_download">Download</button>
+
+        <div id="container_filters">
+          <button class="button_filter" data-min="0.9" data-max="1.0">
+            100-90
+          </button>
+          <button class="button_filter" data-min="0.8" data-max="0.9">
+            90-80
+          </button>
+          <button class="button_filter" data-min="0.7" data-max="0.8">
+            80-70
+          </button>
+          <button class="button_filter" data-min="0.0" data-max="0.7">
+            70-0
+          </button>
+        </div>
+      </div>
+
+      <div id="container_results_header" class="grid_layout">
+        <div>
+          <input type="checkbox" id="checkbox_master" class="result_checkbox" />
+        </div>
+        <div>Image</div>
+        <div class="col_filename">
+          <label class="toggle_wrapper">
+            <input type="checkbox" id="toggle_filename" checked />
+            <span class="toggle_text">Filename</span>
+          </label>
+        </div>
+        <div>Rank</div>
+        <div>Score</div>
+      </div>
+
       <div id="container_results"></div>
 
       <div id="container_support">
