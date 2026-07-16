@@ -98,22 +98,12 @@ export function initControls() {
   const filterButtons = document.querySelectorAll(".button_filter");
   const masterCheckbox = document.getElementById("checkbox_master");
   const btnDownload = document.getElementById("btn_download");
-  const toggleFilename = document.getElementById("toggle_filename"); // NEW
 
   slider.addEventListener("input", (event) => {
     document.documentElement.style.setProperty(
       "--thumbnail_size",
       `${event.target.value}px`,
     );
-  });
-
-  toggleFilename.addEventListener("change", (event) => {
-    const app = document.getElementById("app_imagescore");
-    if (event.target.checked) {
-      app.classList.remove("compact_mode");
-    } else {
-      app.classList.add("compact_mode");
-    }
   });
 
   filterButtons.forEach((button) => {
