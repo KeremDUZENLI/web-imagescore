@@ -8,7 +8,10 @@ import {
   bindPersonaSelector,
   bindAIToggle,
   bindSorters,
+  updateSortHeaders, // NEW
 } from "./utils/ui.js";
+
+import exifr from "https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.esm.js";
 
 let currentSort = { key: "date", order: "desc" };
 
@@ -32,14 +35,15 @@ export function sortAssets() {
 
     if (typeof valA === "string") {
       return currentSort.order === "asc"
-        ? valA.localeCompare(valB)
-        : valB.localeCompare(valA);
+        ? valA.localeCompare(valB, undefined, { numeric: true })
+        : valB.localeCompare(valA, undefined, { numeric: true });
     }
 
     return currentSort.order === "asc" ? valA - valB : valB - valA;
   });
 
   applyFilters();
+  updateSortHeaders(currentSort.key, currentSort.order); // FIX: Updates UI arrows
 }
 
 function handleSort(key) {
@@ -79,19 +83,29 @@ export async function computeScores() {
 }
 
 export async function processFiles(filesOrMemory) {
-  const newAssets = Array.from(filesOrMemory).map((item) => {
+  const computationPromises = Array.from(filesOrMemory).map(async (item) => {
     if (item.url) return item;
+
+    let captureDate = item.lastModified || Date.now();
+    try {
+      const exifData = await exifr.parse(item, ["DateTimeOriginal"]);
+      if (exifData && exifData.DateTimeOriginal) {
+        captureDate = exifData.DateTimeOriginal.getTime();
+      }
+    } catch (e) {
+      // Fails silently for PNGs or files stripped of metadata; falls back to OS date
+    }
 
     return {
       name: item.name,
-      date: item.lastModified || Date.now(),
+      date: captureDate,
       url: URL.createObjectURL(item),
       score: null,
       rank: null,
     };
   });
 
-  aiState.assets = newAssets;
+  aiState.assets = await Promise.all(computationPromises);
 
   toggleControls(true);
   sortAssets();
@@ -105,4 +119,5 @@ window.addEventListener("DOMContentLoaded", () => {
   bindPersonaSelector(processFiles);
   bindSorters(handleSort);
   bindAIToggle(loadModel, computeScores);
+  updateSortHeaders(currentSort.key, currentSort.order);
 });

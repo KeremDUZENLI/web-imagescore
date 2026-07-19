@@ -245,3 +245,23 @@ export function bindAIToggle(loadModelCallback, computeScoresCallback) {
     }
   });
 }
+
+export function updateSortHeaders(activeKey, order) {
+  const baseLabels = {
+    name: "Filename",
+    date: "Date",
+    rank: "Rank",
+    score: "Score",
+  };
+
+  document.querySelectorAll(".header_sortable").forEach((header) => {
+    const key = header.dataset.key;
+    if (key === activeKey) {
+      header.textContent = `${baseLabels[key]} ${order === "asc" ? "↑" : "↓"}`;
+      header.style.color = "var(--color_link)";
+    } else {
+      header.textContent = baseLabels[key];
+      header.style.color = "";
+    }
+  });
+}
