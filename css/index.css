@@ -21,6 +21,19 @@
   font-size: 18px;
   margin: 0;
 }
+.header_controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.checkbox_label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--color_muted);
+}
 .input_select {
   background: var(--color_background);
   border: 1px solid var(--color_border);

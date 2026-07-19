@@ -16,17 +16,23 @@
     <main id="app_imagescore">
       <div id="container_header">
         <h1>Image Evaluation</h1>
-        <select id="select_persona" class="input_select">
-          <optgroup label="Special Models">
-            <option value="calculated_explorer">Calculated Explorer</option>
-            <option value="spatial_architect">Spatial Architect</option>
-            <option value="kinetic_operator">Kinetic Operator</option>
-          </optgroup>
-          <optgroup label="General Models">
-            <option value="minimalist_creator">Minimalist Creator</option>
-            <option value="dynamic_athlete">Dynamic Athlete</option>
-          </optgroup>
-        </select>
+        <div class="header_controls">
+          <label class="checkbox_label">
+            <input type="checkbox" id="checkbox_header_option" />
+            <span>AI</span>
+          </label>
+          <select id="select_persona" class="input_select">
+            <optgroup label="Special Models">
+              <option value="calculated_explorer">Calculated Explorer</option>
+              <option value="spatial_architect">Spatial Architect</option>
+              <option value="kinetic_operator">Kinetic Operator</option>
+            </optgroup>
+            <optgroup label="General Models">
+              <option value="minimalist_creator">Minimalist Creator</option>
+              <option value="dynamic_athlete">Dynamic Athlete</option>
+            </optgroup>
+          </select>
+        </div>
       </div>
 
       <div id="container_dropzone" class="dropzone">

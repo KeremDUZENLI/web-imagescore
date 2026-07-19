@@ -7,6 +7,7 @@ import {
   bindDropzone,
   toggleDropzoneLock,
   bindPersonaSelector,
+  bindAIToggle,
 } from "./utils/ui.js";
 
 export async function processFiles(filesOrMemory) {
@@ -53,23 +54,9 @@ export async function processFiles(filesOrMemory) {
   updateStatus("Status: Online. Processing complete.", "default");
 }
 
-window.addEventListener("DOMContentLoaded", async () => {
+window.addEventListener("DOMContentLoaded", () => {
   bindDropzone(processFiles);
   initControls();
   bindPersonaSelector(processFiles);
-
-  toggleDropzoneLock(true);
-  updateStatus(
-    "Status: Caching Neural Network... (This happens once)",
-    "processing",
-  );
-
-  try {
-    await loadModel();
-    updateStatus("Status: Online", "default");
-    toggleDropzoneLock(false);
-  } catch (error) {
-    updateStatus("Status: Fatal Initialization Error.", "error");
-    console.error(error);
-  }
+  bindAIToggle(loadModel);
 });

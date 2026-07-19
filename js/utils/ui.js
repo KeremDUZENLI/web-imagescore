@@ -194,3 +194,42 @@ export function bindPersonaSelector(processCallback) {
     }
   });
 }
+
+export function bindAIToggle(loadModelCallback) {
+  toggleDropzoneLock(true);
+  updateStatus("Status: System Offline. Check AI to initialize.", "default");
+
+  let isModelLoaded = false;
+  const checkboxEnableAi = document.getElementById("checkbox_header_option");
+
+  checkboxEnableAi.addEventListener("change", async (event) => {
+    if (event.target.checked) {
+      if (!isModelLoaded) {
+        checkboxEnableAi.disabled = true;
+        updateStatus(
+          "Status: Caching Neural Network... (This happens once)",
+          "processing",
+        );
+
+        try {
+          await loadModelCallback();
+          isModelLoaded = true;
+          updateStatus("Status: Online.", "default");
+          toggleDropzoneLock(false);
+        } catch (error) {
+          updateStatus("Status: Fatal Initialization Error.", "error");
+          console.error(error);
+          event.target.checked = false;
+        } finally {
+          checkboxEnableAi.disabled = false;
+        }
+      } else {
+        updateStatus("Status: Online.", "default");
+        toggleDropzoneLock(false);
+      }
+    } else {
+      updateStatus("Status: Offline. AI Engine suspended.", "default");
+      toggleDropzoneLock(true);
+    }
+  });
+}
