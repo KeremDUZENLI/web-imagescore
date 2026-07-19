@@ -24,10 +24,23 @@ export function toggleControls(isVisible) {
   }
 }
 
-export function toggleDropzoneLock(isLocked) {
-  const dropzone = document.getElementById("container_dropzone");
-  dropzone.style.pointerEvents = isLocked ? "none" : "auto";
-  dropzone.style.opacity = isLocked ? "0.5" : "1";
+export function applyFilters() {
+  const activeButtons = Array.from(
+    document.querySelectorAll(".button_filter.active"),
+  );
+  if (activeButtons.length === 0) {
+    renderGrid(aiState.assets);
+  } else {
+    const filtered = aiState.assets.filter((asset) => {
+      if (asset.score === null) return false; // Hide pending assets if filtering by score
+      return activeButtons.some((btn) => {
+        const min = parseFloat(btn.dataset.min);
+        const max = parseFloat(btn.dataset.max);
+        return asset.score >= min && asset.score <= max;
+      });
+    });
+    renderGrid(filtered);
+  }
 }
 
 export function renderGrid(assetsToRender) {
@@ -48,14 +61,22 @@ export function renderGrid(assetsToRender) {
   assetsToRender.forEach((asset) => {
     const row = document.createElement("div");
     row.className = "result_row grid_layout";
+
+    const dateObj = new Date(asset.date);
+    const dateString = isNaN(dateObj) ? "-" : dateObj.toLocaleDateString();
+    const scoreString =
+      asset.score === null ? "..." : (asset.score * 100).toFixed(1);
+    const rankString = asset.rank === null ? "-" : asset.rank;
+
     row.innerHTML = `
       <div>
-        <input type="checkbox" class="result_checkbox" data-url="${asset.url}" data-name="${asset.name}" data-rank="${asset.rank}" />
+        <input type="checkbox" class="result_checkbox" data-url="${asset.url}" data-name="${asset.name}" data-rank="${rankString}" />
       </div>
       <img src="${asset.url}" alt="${asset.name}">
       <div class="result_cell col_filename" title="${asset.name}">${asset.name}</div>
-      <div class="result_cell col_rank">${asset.rank}</div>
-      <div class="result_cell col_score">${(asset.score * 100).toFixed(1)}</div>
+      <div class="result_cell" style="color: var(--color_muted); font-size: 12px;">${dateString}</div>
+      <div class="result_cell col_rank">${rankString}</div>
+      <div class="result_cell col_score">${scoreString}</div>
     `;
     containerResults.appendChild(row);
   });
@@ -109,22 +130,7 @@ export function initControls() {
   filterButtons.forEach((button) => {
     button.addEventListener("click", function () {
       this.classList.toggle("active");
-      const activeButtons = Array.from(
-        document.querySelectorAll(".button_filter.active"),
-      );
-
-      if (activeButtons.length === 0) {
-        renderGrid(aiState.scoredAssets);
-      } else {
-        const filtered = aiState.scoredAssets.filter((asset) => {
-          return activeButtons.some((btn) => {
-            const min = parseFloat(btn.dataset.min);
-            const max = parseFloat(btn.dataset.max);
-            return asset.score >= min && asset.score <= max;
-          });
-        });
-        renderGrid(filtered);
-      }
+      applyFilters();
     });
   });
 
@@ -168,16 +174,13 @@ export function bindPersonaSelector(processCallback) {
 
   Array.from(selectPersona.options).forEach((option) => {
     const matrix = aiState.personas[option.value];
-    if (matrix) {
-      option.title =
-        "TARGET VECTORS:\n• " +
-        matrix[0] +
-        "\n• " +
-        matrix[1] +
-        "\n• " +
-        matrix[2] +
-        "\n\nNEGATIVE VECTORS:\n• " +
-        matrix[3];
+    if (matrix && matrix.length > 1) {
+      const targetList = matrix
+        .slice(0, -1)
+        .map((v) => `• ${v}`)
+        .join("\n");
+      const negativeList = `• ${matrix[matrix.length - 1]}`;
+      option.title = `TARGET VECTORS:\n${targetList}\n\nNEGATIVE VECTORS:\n${negativeList}`;
     }
   });
 
@@ -189,16 +192,27 @@ export function bindPersonaSelector(processCallback) {
     selectPersona.title =
       selectPersona.options[selectPersona.selectedIndex].title;
 
-    if (aiState.scoredAssets.length > 0) {
-      processCallback(aiState.scoredAssets);
+    if (aiState.assets.length > 0) {
+      aiState.assets.forEach((asset) => {
+        asset.score = null;
+        asset.rank = null;
+      });
+
+      processCallback(aiState.assets);
     }
   });
 }
 
-export function bindAIToggle(loadModelCallback) {
-  toggleDropzoneLock(true);
-  updateStatus("Status: System Offline. Check AI to initialize.", "default");
+export function bindSorters(sortCallback) {
+  document.querySelectorAll(".header_sortable").forEach((header) => {
+    header.addEventListener("click", (e) => {
+      sortCallback(e.target.dataset.key);
+    });
+  });
+}
 
+export function bindAIToggle(loadModelCallback, computeScoresCallback) {
+  updateStatus("Status: AI Offline.", "default");
   let isModelLoaded = false;
   const checkboxEnableAi = document.getElementById("checkbox_header_option");
 
@@ -210,26 +224,24 @@ export function bindAIToggle(loadModelCallback) {
           "Status: Caching Neural Network... (This happens once)",
           "processing",
         );
-
         try {
           await loadModelCallback();
           isModelLoaded = true;
           updateStatus("Status: Online.", "default");
-          toggleDropzoneLock(false);
         } catch (error) {
           updateStatus("Status: Fatal Initialization Error.", "error");
           console.error(error);
           event.target.checked = false;
+          return;
         } finally {
           checkboxEnableAi.disabled = false;
         }
       } else {
         updateStatus("Status: Online.", "default");
-        toggleDropzoneLock(false);
       }
+      computeScoresCallback();
     } else {
       updateStatus("Status: Offline. AI Engine suspended.", "default");
-      toggleDropzoneLock(true);
     }
   });
 }

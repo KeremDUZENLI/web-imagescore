@@ -7,7 +7,7 @@ env.allowLocalModels = false;
 let classifier = null;
 
 export const aiState = {
-  scoredAssets: [],
+  assets: [],
   activePersona: "calculated_explorer",
   personas: {
     calculated_explorer: [

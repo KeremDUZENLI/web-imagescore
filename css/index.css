@@ -160,10 +160,18 @@
   display: grid;
   grid-template-columns:
     30px minmax(0, var(--thumbnail_size)) minmax(120px, 1fr)
-    60px 80px;
+    90px 60px 80px;
   gap: 16px;
   align-items: center;
   padding: 8px 16px;
+}
+.header_sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s ease;
+}
+.header_sortable:hover {
+  color: var(--color_link);
 }
 .col_filename {
   display: -webkit-box;
@@ -173,10 +181,10 @@
   overflow: hidden;
 }
 .col_rank {
-  grid-column: 4;
+  grid-column: 5;
 }
 .col_score {
-  grid-column: 5;
+  grid-column: 6;
 }
 
 #container_results {
@@ -245,9 +253,10 @@
 
   .grid_layout {
     gap: 8px;
-    grid-template-columns:
-      20px minmax(0, var(--thumbnail_size)) minmax(80px, 1fr)
-      35px 45px;
+    grid-template-columns: 20px minmax(0, var(--thumbnail_size)) minmax(
+        80px,
+        1fr
+      ) 70px 35px 45px;
     padding: 8px;
   }
 }
